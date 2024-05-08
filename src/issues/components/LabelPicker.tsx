@@ -1,14 +1,37 @@
+import { FC } from 'react';
+import LoadingIcon from '../../shared/components/LoadingIcon';
+import useLabels from '../hooks/useLabels';
 
-export const LabelPicker = () => {
-  return (
-    <div>
-        <span 
-            className="badge rounded-pill m-1 label-picker"
-            style={{ border: `1px solid #ffccd3`, color: '#ffccd3' }}
-        >
-            Primary
-        </span>
-        
-    </div>
-  )
+interface LabelPickerProps {
+  selectedLabels: string[];
+  onChange: (labelName: string) => void;
 }
+
+export const LabelPicker: FC<LabelPickerProps> = ({
+  selectedLabels,
+  onChange,
+}) => {
+  const labelsQuery = useLabels();
+
+  if (labelsQuery.isLoading) return <LoadingIcon />; //! Por qué isLoading y no isFetching?
+
+  return (
+    <>
+      {labelsQuery.data?.map((label) => (
+        <span
+          key={label.id}
+          className={`badge rounded-pill m-1 label-picker ${
+            selectedLabels.includes(label.name) ? 'labelActive' : ''
+          }`}
+          onClick={() => onChange(label.name)}
+          style={{
+            border: `1px solid #${label.color}`,
+            color: `${label.color}`,
+          }}
+        >
+          {label.name}
+        </span>
+      ))}
+    </>
+  );
+};
